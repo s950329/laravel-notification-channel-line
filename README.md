@@ -20,6 +20,8 @@ This package makes it easy to send notifications using [LINE](https://line.me/) 
       - [Available methods](#available-methods)
     - [Template Messages](#template-messages)
       - [Available methods](#available-methods-1)
+    - [Flex Messages](#flex-messages)
+      - [Available methods](#available-methods-2)
   - [Security](#security)
   - [Contributing](#contributing)
   - [Credits](#credits)
@@ -151,6 +153,92 @@ class TaskCompleted extends Notification
 `defaultAction()`: Optional. Action when image, title or text area is tapped.
 
 `actions()`: Required. Action when tapped, max objects: 4.
+
+### Flex Messages
+
+Reference: [Flex messages](https://developers.line.biz/en/docs/messaging-api/using-flex-messages/)
+
+Flex messages allow you to create richly laid out messages that can contain combinations of text, buttons, images, and more, arranged in a flexible layout.
+
+```php
+use Illuminate\Notifications\Notification;
+use LeoChien\LaravelNotificationChannelLine\LineFlexMessage;
+use LeoChien\LaravelNotificationChannelLine\LineWebhookChannel;
+
+class TaskCompleted extends Notification
+{
+    public function via($notifiable): array
+    {
+        return [
+            'line',
+        ];
+    }
+
+    public function toLine($notifiable): LineMessage
+    {
+        return LineFlexMessage::create()
+            ->to('line_user_id')
+            ->from('message_api_token') // optional if set in config
+            ->altText('This is a Flex Message')
+            ->contents([
+                'type' => 'bubble',
+                'body' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => 'Hello, World!',
+                            'weight' => 'bold',
+                            'size' => 'xl'
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'vertical',
+                            'margin' => 'lg',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => 'This is a Flex Message',
+                                    'color' => '#aaaaaa',
+                                    'size' => 'sm',
+                                    'flex' => 1
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'footer' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'spacing' => 'sm',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'style' => 'primary',
+                            'action' => [
+                                'type' => 'uri',
+                                'label' => 'Go to Website',
+                                'uri' => 'https://example.com'
+                            ]
+                        ]
+                    ]
+                ]
+            ]);
+    }
+}
+```
+
+#### Available methods
+
+`from()`: Optional. Sets the sender's access token. Default to the set in config.
+
+`to()`: Required. Specifies the line user id to send the notification to.
+
+`altText()`: Required. Alternative text for devices that don't support Flex Message.
+
+`contents()`: Required. The JSON object that defines the layout and content of the Flex Message.
 
 ## Security
 
